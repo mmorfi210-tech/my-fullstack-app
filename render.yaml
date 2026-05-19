@@ -1,0 +1,44 @@
+services:
+  # Python FastAPI Backend (Dockerized)
+  - type: web
+    name: njarbo-backend
+    env: docker
+    dockerContext: backend
+    dockerfilePath: backend/Dockerfile
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: njarbo-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "60"
+
+  # React Frontend (Static Site)
+  - type: web
+    name: njarbo-frontend
+    env: static
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build
+    publishPath: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        fromRoute:
+          type: web
+          name: njarbo-backend
+          property: url
+    routes:
+      # Redirect all requests to index.html for React Router SPA support
+      - type: rewrite
+        src: /*
+        dest: /index.html
+
+databases:
+  - name: njarbo-db
+    plan: free
+    databaseName: njarbo
+    user: morfi
