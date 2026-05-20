@@ -2,7 +2,7 @@ services:
   # Python FastAPI Backend (Dockerized)
   - type: web
     name: njarbo-backend
-    env: docker
+    runtime: docker
     dockerContext: backend
     dockerfilePath: Dockerfile
     plan: free
@@ -26,10 +26,7 @@ services:
     staticPublishPath: frontend/dist
     envVars:
       - key: VITE_API_URL
-        fromRoute:
-          type: web
-          name: njarbo-backend
-          property: url
+        value: https://njarbo-backend.onrender.com
     routes:
       # Redirect all requests to index.html for React Router SPA support
       - type: rewrite
